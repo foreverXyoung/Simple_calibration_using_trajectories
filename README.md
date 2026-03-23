@@ -2,6 +2,23 @@
 
 A hand-eye calibration tool that solves the classic **AX=XB** calibration problem using Ceres optimizer. This project estimates the rigid transformation (rotation + translation) between two sensors based on their trajectory data.
 
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Algorithm Principle](#algorithm-principle)
+- [Directory Structure](#directory-structure)
+- [Dependencies](#dependencies)
+- [Build](#build)
+- [Usage](#usage)
+- [Demo](#demo)
+- [Algorithm Details](#algorithm-details)
+- [Parameters Guide](#parameters-guide)
+- [License](#license)
+
+---
+
 ## Overview
 
 The AX=XB calibration problem is fundamental in robotics and computer vision for determining the spatial relationship between two sensors. Given corresponding pose pairs from sensor A and sensor B moving together, this tool computes the transformation matrix `T_A_B` that relates frame A to frame B.
@@ -11,6 +28,8 @@ The AX=XB calibration problem is fundamental in robotics and computer vision for
 - **LiDAR-RTK Calibration**: Estimate the extrinsic parameters between LiDAR and RTK/GPS sensors
 - **Robot Eye-in-Hand**: Camera-to-robot-end-effector calibration
 - **Multi-Sensor Fusion**: Spatial alignment of any two rigidly-mounted sensors
+
+---
 
 ## Algorithm Principle
 
@@ -30,6 +49,7 @@ Where:
 ### Geometric Interpretation
 
 For any pair of consecutive poses:
+
 ```
 T_A_i⁻¹ * T_A_j = R_A, t_A  (relative motion of sensor A)
 T_B_i⁻¹ * T_B_j = R_B, t_B  (relative motion of sensor B)
@@ -51,45 +71,56 @@ q_err = qA * qX * qB⁻¹ * qX⁻¹  →  minimize ||angle-axis(q_err)||
 t_res = R_A * tX + tA - R_X * tB - tX  →  minimize ||t_res||
 ```
 
+---
+
 ## Directory Structure
 
 ```
-calib_AXXB/
-├── CMakeLists.txt              # Build configuration
-├── build.sh                    # Build script
-├── clear.sh                    # Clean script
-├── README.md                   # This file
+Simple_calibration_using_trajectories/
+├── CMakeLists.txt                  # Build configuration
+├── build.sh                        # Build script
+├── clear.sh                        # Clean script
+├── README.md                       # This file
+├── LICENSE                         # BSD License
 ├── config/
-│   └── calib.yaml              # Configuration file
+│   └── calib.yaml                  # Configuration file
 ├── include/
-│   └── hand_eye_calibrator.h   # Class definition
+│   └── hand_eye_calibrator.h       # Class definition
 ├── src/
-│   └── hand_eye_calibrator.cpp # Core implementation
+│   └── hand_eye_calibrator.cpp     # Core implementation
 ├── app/
-│   └── calib_lidar_rtk.cpp     # Main entry point
+│   └── calib_lidar_rtk.cpp         # Main entry point
 └── data/
-    ├── lidar_pose.txt          # Sample sensor A trajectory
-    ├── rtk_pose.txt            # Sample sensor B trajectory
-    └── calib_result.txt        # Output result
+    ├── lidar_pose.txt              # Sample sensor A trajectory
+    ├── rtk_pose.txt                # Sample sensor B trajectory
+    └── calib_result.txt           # Output result
 ```
+
+---
 
 ## Dependencies
 
-- **Eigen3** - Linear algebra library
-- **Ceres Solver** - Non-linear optimization
-- **PCL (Point Cloud Library)** - Point cloud processing
-- **yaml-cpp** - YAML configuration parsing
-- **glog** - Google logging library
+| Library      | Version   | Description              |
+|--------------|-----------|--------------------------|
+| Eigen3       | ≥ 3.3.0   | Linear algebra library   |
+| Ceres Solver | ≥ 2.0.0   | Non-linear optimization  |
+| PCL          | ≥ 1.8.0   | Point cloud processing   |
+| yaml-cpp     | ≥ 0.6.0   | YAML configuration       |
+| glog         | ≥ 0.4.0   | Google logging library   |
+
+---
 
 ## Build
 
 ```bash
-cd calib_AXXB
+cd Simple_calibration_using_trajectories
 chmod +x build.sh clear.sh
 ./build.sh
 ```
 
 The executable will be generated at `bin/calib_AXXB_lidar_rtk`.
+
+---
 
 ## Usage
 
@@ -140,7 +171,7 @@ Example (`data/lidar_pose.txt`):
 Where:
 - `timestamp`: Unix timestamp in seconds
 - `x, y, z`: Position (meters)
-- `qx, qy, qz, qw`: Orientation as quaternion
+- `qx, qy, qz, qw`: Orientation as quaternion (qx, qy, qz, qw)
 
 ### Run
 
@@ -164,9 +195,11 @@ T_B_A (inverse transform):
     0  |  0
 ```
 
+---
+
 ## Demo
 
-The repository includes sample data for testing:
+The repository includes sample data for testing with known ground truth.
 
 **Ground Truth** (for demo data):
 ```
@@ -176,6 +209,8 @@ T_rtk_lidar:
 0.0,    0.0,   1.0, 0.130,
 0.0,    0.0,   0.0, 1.000;
 ```
+
+---
 
 ## Algorithm Details
 
@@ -194,20 +229,26 @@ T_rtk_lidar:
 - **Configurable Skip**: Allows using non-consecutive frame pairs for motion computation
 - **Convergence Callback**: Monitors optimization progress and termination
 
+---
+
 ## Parameters Guide
 
 | Parameter | Recommended | Description |
 |-----------|-------------|-------------|
 | `only_optimize_rotation` | `false` | Set `true` only when translation is known |
 | `max_iterations` | 500-2000 | Increase if convergence not reached |
-| `residual_threshold` | 1e-8 to 1e-11 | Smaller = stricter convergence |
-| `time_tolerance_seconds` | 0.05-0.2 | Depends on trajectory timestamp precision |
-| `skip` | 1-5 | Larger = more motion between frames, fewer pairs |
-| `T_A_B_init` | Close to true value | Critical for large initial errors |
+| `residual_threshold` | 1e-8 ~ 1e-11 | Smaller = stricter convergence |
+| `time_tolerance_seconds` | 0.05 ~ 0.2 | Depends on timestamp precision |
+| `skip` | 1-5 | Larger = more motion, fewer pairs |
+| `T_A_B_init` | Close to true | Critical for large initial errors |
+
+---
 
 ## License
 
-BSD License - See LICENSE file for details.
+BSD License - See [LICENSE](LICENSE) file for details.
+
+---
 
 ## Acknowledgments
 
