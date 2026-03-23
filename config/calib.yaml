@@ -1,0 +1,24 @@
+hand_eye_calibrator:
+  # Optimization options
+  only_optimize_rotation: false
+  max_iterations: 1000
+  residual_threshold: 0.00000001
+
+  # Robust kernel (none, huber, cauchy)
+  robust_kernel: "huber"
+  robust_kernel_delta: 1.0
+
+  # Data alignment
+  time_tolerance_seconds: 0.1
+  skip: 1
+
+  # Initial guess (4x4 transformation matrix, row-major)
+  T_A_B_init: [1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0, 1.0]
+
+  # Input/Output paths
+  A_poses_file: "data/lidar_pose.txt"
+  B_poses_file: "data/rtk_pose.txt"
+  save_result_file: "data/calib_result.txt"
